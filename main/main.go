@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 	cryptomd5 "todoList/cryptoMd5"
+	"todoList/fromt"
 
 	"github.com/howeyc/gopass"
 )
@@ -43,7 +43,7 @@ func createTask(idInt func() int, name, detailed, finish_time, founder string) m
 		"id":          ids,
 		"name":        name,
 		"detailed":    detailed,
-		"create_time": fmt.Sprintf(now.Format("2006-01-02 15:04:05")),
+		"create_time": now.Format("2006-01-02 15:04:05"),
 		"finish_time": finish_time,
 		"status":      statusNone,
 		"founder":     founder,
@@ -147,7 +147,7 @@ func main() {
 		fmt.Println("请输入您的密码:")
 		st, _ := gopass.GetPasswdMasked()
 		ok := cryptomd5.Auto(string(st))
-		ok := cryptomd5.Auto(string(st))
+		//ok := cryptomd5.Auto(string(st))
 		if ok {
 			sku = true
 			break
@@ -158,7 +158,6 @@ func main() {
 	}
 	for sku {
 		var scan string
-		fmt.Println(strings.Repeat("-", 25))
 		fmt.Println("欢迎使用task任务管理")
 		fmt.Println("请输入你的操作")
 		fmt.Printf("1.create 2. delete 3. revise 4. list 5. exit :")
@@ -166,9 +165,9 @@ func main() {
 		switch scan {
 		case "create":
 			var name, detailed, finish_time, founder string
-			fmt.Print("输入名字:")
+			fmt.Print("输入任务名:")
 			fmt.Scanln(&name)
-			fmt.Print("任务内容:")
+			fmt.Print("任务详细内容:")
 			fmt.Scanln(&detailed)
 			fmt.Print("结束时间:")
 			fmt.Scanln(&finish_time)
@@ -194,17 +193,15 @@ func main() {
 			modify(id)
 
 		case "list":
-			fmt.Println("列出")
+			// 首先要变成二维数组
+			// 1. 定义一个二维数组并且把map 中的数据存入到二维数组中
+			sliceone := [][]string{}
+
 			for _, v := range task {
-				fmt.Printf("ID:%v\n", v["id"])
-				fmt.Printf("任务名称:%v\n", v["name"])
-				fmt.Printf("任务详情:%v\n", v["detailed"])
-				fmt.Printf("任务开始时间:%v\n", v["create_time"])
-				fmt.Printf("任务结束时间:%v\n", v["finish_time"])
-				fmt.Printf("状态:%v\n", v["status"])
-				fmt.Printf("创建人:%v\n", v["founder"])
-				fmt.Println()
+				sliceone = append(sliceone, []string{v["id"], v["name"], v["detailed"], v["create_time"],
+					v["finish_time"], v["status"], v["founder"]})
 			}
+			fromt.WriterTable(sliceone)
 
 		case "exit":
 			fmt.Println("退出")
