@@ -22,8 +22,6 @@ go modules 于1.11 版本初步引入，在1.12 中正式支持，
 4. 可以通过 go mod download  下载依赖
 5. go mod tidy 命令来更新依赖关系
 
-
-
 #### golang 标准包
 
 flag   // 命令行参数解析
