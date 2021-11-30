@@ -14,7 +14,6 @@ import (
 // 创建task 函数
 var (
 	task = make([]map[string]string, 0)
-	now  = time.Now()
 
 	sku bool
 )
@@ -36,22 +35,22 @@ func GetId() func() int {
 	}
 }
 
-func createTask(idInt func() int, name, detailed, finish_time, founder string) map[string]string {
+func createTask(idInt func() int, name, detailed, finish_time, founder, create_time string) map[string]string {
 	idi := idInt()
 	ids := strconv.Itoa(idi)
 	return map[string]string{
 		"id":          ids,
 		"name":        name,
 		"detailed":    detailed,
-		"create_time": now.Format("2006-01-02 15:04:05"),
+		"create_time": create_time,
 		"finish_time": finish_time,
 		"status":      statusNone,
 		"founder":     founder,
 	}
 }
 
-func Addtask(idInt func() int, name, detailed, finish_time, founder string) []map[string]string {
-	add := createTask(idInt, name, detailed, finish_time, founder)
+func Addtask(idInt func() int, name, detailed, finish_time, founder, time string) []map[string]string {
+	add := createTask(idInt, name, detailed, finish_time, founder, time)
 	task = append(task, add)
 
 	return task
@@ -164,6 +163,7 @@ func main() {
 		fmt.Scanln(&scan)
 		switch scan {
 		case "create":
+			now := time.Now()
 			var name, detailed, finish_time, founder string
 			fmt.Print("输入任务名:")
 			fmt.Scanln(&name)
@@ -173,7 +173,7 @@ func main() {
 			fmt.Scanln(&finish_time)
 			fmt.Print("创建人:")
 			fmt.Scanln(&founder)
-			task = Addtask(idInt, name, detailed, finish_time, founder)
+			task = Addtask(idInt, name, detailed, finish_time, founder, now.Format("2006-01-02 15:04:05"))
 
 		case "delete":
 			var id string
