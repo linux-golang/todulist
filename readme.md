@@ -1,4 +1,4 @@
-### go module 模式
+#### go module 模式
 package  这个关键字是定义包
 import 引入包
 若要引入多个包可以放到()中
@@ -24,9 +24,18 @@ go modules 于1.11 版本初步引入，在1.12 中正式支持，
 
 #### golang 标准包
 
-flag   // 命令行参数解析
-os     // 调用系统接口的
-time   // 时间相关的包
-sort   // 排序的包
-log    // 日志包
-exec   // 执行系统命令
++ flag   // 命令行参数解析
++ os     // 调用系统接口的
++ time   // 时间相关的包
++ sort   // 排序的包
++ log    // 日志包
++ exec   // 执行系统命令
+
+>  用于查看各个包的api 文件请见官方文档https://pkg.go.dev/   or  https://golang.google.cn/pkg/
+
+
+
+#### 结构体
+
+
+
