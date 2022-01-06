@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"time"
@@ -17,6 +18,9 @@ var (
 	task = make([]vars.Task, 0)
 
 	sku bool
+
+	pathstr string = "C:/todolist2/"
+	pwdfile string = pathstr + "/pwd.pwd"
 )
 
 const (
@@ -146,6 +150,87 @@ func delete(id string) (bool, error) {
 	return true, nil
 }
 
+//检查密码文件
+// 1. 判断文件是否存在
+// 如果不存在则要创建并且让用户初始化密码，并把密码加密后的存入文件中
+// 如果存在则要读取文件密码的内容，并且让用户有输入
+// 修改密码
+
+// 判断路径是否存在
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return false, err
+}
+
+func checkPasswdfile() {
+	ok, err := PathExists(pathstr)
+	if !ok && err == nil {
+		err := os.MkdirAll(pathstr, os.ModeDir)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	var b []byte = make([]byte, 1024)
+	f, err := os.OpenFile(pwdfile, os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		fmt.Println("打开或创建文件报错")
+		return
+	}
+	defer f.Close()
+
+	// 读取文件的内容并判断是否又内容！
+	l, err := f.Read(b)
+	if l == 0 {
+		err := initpasswd(f)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	} else if err != nil || err != io.EOF {
+		fmt.Println(err)
+		return
+	}
+}
+
+func initpasswd(f *os.File) error {
+	fmt.Println("请输入初始化密码")
+	st, _ := gopass.GetPasswdMasked()
+	p := cryptomd5.WriteAuto2(string(st))
+	_, err := f.Write([]byte(p))
+	if err != nil {
+		fmt.Print(err)
+		return err
+	}
+
+	return nil
+
+}
+
+func readpwd() string {
+	b := make([]byte, 1024)
+	f, err := os.OpenFile(pwdfile, os.O_RDONLY, 0777)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+
+	defer f.Close()
+	n, _ := f.Read(b)
+	str := b[:n]
+
+	return string(str)
+
+}
+
 func main() {
 	// 创建一个task 任务管理界面
 	// 需求
@@ -153,11 +238,12 @@ func main() {
 	//    任务的字段有id(自增长)  任务名称   任务详情  任务创建时间
 	// 任务结束时间   任务状态   任务创建人
 	idInt := GetId()
+	checkPasswdfile()
 
 	for conut := 1; conut <= 3; conut++ {
 		fmt.Println("请输入您的密码:")
 		st, _ := gopass.GetPasswdMasked()
-		ok := cryptomd5.Auto(string(st))
+		ok := cryptomd5.Auto(string(st), readpwd())
 		//ok := cryptomd5.Auto(string(st))
 		if ok {
 			sku = true
