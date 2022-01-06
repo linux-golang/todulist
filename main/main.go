@@ -7,13 +7,14 @@ import (
 	"time"
 	cryptomd5 "todoList/cryptoMd5"
 	"todoList/fromt"
+	"todoList/vars"
 
 	"github.com/howeyc/gopass"
 )
 
 // 创建task 函数
 var (
-	task = make([]map[string]string, 0)
+	task = make([]vars.Task, 0)
 
 	sku bool
 )
@@ -35,21 +36,31 @@ func GetId() func() int {
 	}
 }
 
-func createTask(idInt func() int, name, detailed, finish_time, founder, create_time string) map[string]string {
+func createTask(idInt func() int, name, detailed, finish_time, founder, create_time string) vars.Task {
 	idi := idInt()
 	ids := strconv.Itoa(idi)
-	return map[string]string{
-		"id":          ids,
-		"name":        name,
-		"detailed":    detailed,
-		"create_time": create_time,
-		"finish_time": finish_time,
-		"status":      statusNone,
-		"founder":     founder,
+	// return map[string]string{
+	// 	"id":          ids,
+	// 	"name":        name,
+	// 	"detailed":    detailed,
+	// 	"create_time": create_time,
+	// 	"finish_time": finish_time,
+	// 	"status":      statusNone,
+	// 	"founder":     founder,
+	// }
+
+	return vars.Task{
+		Id:          ids,
+		Name:        name,
+		Detailed:    detailed,
+		Create_time: create_time,
+		Finish_time: finish_time,
+		Status:      statusNone,
+		Founder:     founder,
 	}
 }
 
-func Addtask(idInt func() int, name, detailed, finish_time, founder, time string) []map[string]string {
+func Addtask(idInt func() int, name, detailed, finish_time, founder, time string) []vars.Task {
 	add := createTask(idInt, name, detailed, finish_time, founder, time)
 	task = append(task, add)
 
@@ -61,7 +72,8 @@ func checkTask(id string) (idn int, err error) {
 	idn = -1
 	//fmt.Println("====", task)
 	for i, v := range task {
-		c, _ := v["id"]
+		//c, _ := v["id"]
+		c := v.Id
 		//fmt.Println("-----", v[id])
 		if c == id {
 			idn = i
@@ -93,21 +105,21 @@ func modify(id string) {
 		fmt.Scanln(&is)
 		switch {
 		case is == "name":
-			fmt.Printf("原名字:%#v\n请输入要修改的名字:", task[i]["name"])
+			fmt.Printf("原名字:%#v\n请输入要修改的名字:", task[i].Name)
 			fmt.Scanln(&scan)
-			task[i]["name"] = scan
+			task[i].Name = scan
 		case is == "status":
-			fmt.Printf("原状态:%#v\n请输入要修改的状态:", task[i]["status"])
+			fmt.Printf("原状态:%#v\n请输入要修改的状态:", task[i].Status)
 			fmt.Scanln(&scan)
-			task[i]["status"] = scan
+			task[i].Status = scan
 		case is == "detailed":
-			fmt.Printf("原说明:%#v\n请输入要修改的说明:", task[i]["detailed"])
+			fmt.Printf("原说明:%#v\n请输入要修改的说明:", task[i].Detailed)
 			fmt.Scanln(&scan)
-			task[i]["detailed"] = scan
+			task[i].Detailed = scan
 		case is == "finish_time":
-			fmt.Printf("完成时间:%#v\n请输入要修改完成时间:", task[i]["finish_time"])
+			fmt.Printf("完成时间:%#v\n请输入要修改完成时间:", task[i].Finish_time)
 			fmt.Scanln(&scan)
-			task[i]["finish_time"] = scan
+			task[i].Finish_time = scan
 		case is == "exit":
 
 			fmt.Println("===================")
@@ -197,9 +209,13 @@ func main() {
 			// 1. 定义一个二维数组并且把map 中的数据存入到二维数组中
 			sliceone := [][]string{}
 
+			// for _, v := range task {
+			// 	sliceone = append(sliceone, []string{v["id"], v["name"], v["detailed"], v["create_time"],
+			// 		v["finish_time"], v["status"], v["founder"]})
+			// }
+
 			for _, v := range task {
-				sliceone = append(sliceone, []string{v["id"], v["name"], v["detailed"], v["create_time"],
-					v["finish_time"], v["status"], v["founder"]})
+				sliceone = append(sliceone, []string{v.Id, v.Name, v.Detailed, v.Create_time, v.Finish_time, v.Status, v.Founder})
 			}
 			fromt.WriterTable(sliceone)
 
