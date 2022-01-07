@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 	cryptomd5 "todoList/cryptoMd5"
 	"todoList/fromt"
@@ -31,13 +33,108 @@ const (
 )
 
 func GetId() func() int {
+	id := 0
+	defer func() {
+		err := recover()
+		if err != nil {
+			//fmt.Println(err)
+		}
 
-	var id int = 0
+	}()
+	va, b := readtodolist()
+
+	if b {
+		id1, err := strconv.Atoi(va[len(va)-1].Id)
+		if err != nil {
+			id = 1
+		} else {
+			id = id1
+		}
+
+	}
 
 	return func() int {
 		id++
 		return id
+
 	}
+}
+
+// 将任务列表写入文件
+
+func writetodolis(todo []vars.Task) bool {
+
+	f, err := os.OpenFile(fmt.Sprint(pathstr+"/todo.txt"), os.O_CREATE|os.O_RDWR|os.O_APPEND, 0777)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	defer f.Close()
+
+	buff := bufio.NewWriter(f)
+
+	for _, v := range todo {
+		s := fmt.Sprintf("%s,%s,%s,%s,%s,%s,%s\r\n", v.Id, v.Name, v.Detailed, v.Create_time, v.Finish_time, v.Status, v.Founder)
+		buff.Write([]byte(s))
+	}
+
+	buff.Flush()
+
+	return true
+}
+
+//(vtask []*vars.Task)
+func readtodolist() (vtask []vars.Task, err bool) {
+
+	f, b := os.OpenFile(fmt.Sprint(pathstr+"/todo.txt"), os.O_RDONLY, 0777)
+	if b != nil {
+		return nil, false
+	}
+	buf := bufio.NewScanner(f)
+	ss1 := make([][]byte, 0)
+	ss := make([]byte, 10)
+	for buf.Scan() {
+		//ss = append(ss, buf.Bytes())
+		ss = buf.Bytes()
+		ss1 = append(ss1, ss)
+
+	}
+	//fmt.Println(ss1)
+	if err := buf.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "shouldn't see an error scanning a string")
+	}
+
+	var v1 vars.Task
+	// s1 := make([]byte, 2)
+	for _, v := range ss1 {
+		str := strings.Split(string(v), ",")
+		v1 = vars.Task{
+			Id:          str[0],
+			Name:        str[1],
+			Detailed:    str[2],
+			Create_time: str[3],
+			Finish_time: str[4],
+			Status:      str[5],
+			Founder:     str[6],
+		}
+		vtask = append(vtask, v1)
+	}
+	return vtask, true
+
+}
+
+func splic(s string) *vars.Task {
+	a := strings.Split(s, ",")
+	return &vars.Task{
+		Id:          a[0],
+		Name:        a[1],
+		Detailed:    a[2],
+		Create_time: a[3],
+		Finish_time: a[4],
+		Status:      a[5],
+		Founder:     a[6],
+	}
+
 }
 
 func createTask(idInt func() int, name, detailed, finish_time, founder, create_time string) vars.Task {
@@ -272,7 +369,7 @@ func main() {
 			fmt.Print("创建人:")
 			fmt.Scanln(&founder)
 			task = Addtask(idInt, name, detailed, finish_time, founder, now.Format("2006-01-02 15:04:05"))
-
+			writetodolis(task)
 		case "delete":
 			var id string
 			fmt.Printf("请输入删除ID:")
@@ -280,6 +377,7 @@ func main() {
 			ok, err := delete(id)
 			if ok {
 				fmt.Println("删除成功")
+				writetodolis(task)
 			} else {
 				fmt.Println(err)
 			}
@@ -289,6 +387,7 @@ func main() {
 			fmt.Scanln(&id)
 
 			modify(id)
+			writetodolis(task)
 
 		case "list":
 			// 首先要变成二维数组
@@ -299,11 +398,15 @@ func main() {
 			// 	sliceone = append(sliceone, []string{v["id"], v["name"], v["detailed"], v["create_time"],
 			// 		v["finish_time"], v["status"], v["founder"]})
 			// }
-
-			for _, v := range task {
-				sliceone = append(sliceone, []string{v.Id, v.Name, v.Detailed, v.Create_time, v.Finish_time, v.Status, v.Founder})
+			s, err := readtodolist()
+			if err {
+				for _, v := range s {
+					sliceone = append(sliceone, []string{v.Id, v.Name, v.Detailed, v.Create_time, v.Finish_time, v.Status, v.Founder})
+				}
+				fromt.WriterTable(sliceone)
+			} else {
+				fmt.Println("请创建数据")
 			}
-			fromt.WriterTable(sliceone)
 
 		case "exit":
 			fmt.Println("退出")
