@@ -11,7 +11,7 @@ func TestCheckPasswdfile(t *testing.T) {
 }
 
 func TestReadtodolist(t *testing.T) {
-	f := readtodolist()
+	f, _ := readtodolist()
 	fmt.Printf("%#v\n", f)
 }
 
