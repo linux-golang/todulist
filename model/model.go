@@ -16,9 +16,9 @@ func GetId() func() int {
 
 	// 第一步判断文件中的行哈，如果有则返回
 	id := 0
-
 	tasks, b := fileModel.ReadFileTodolist()
-	if  len(tasks) != 0 {
+	fmt.Println(tasks)
+	if  (len(tasks) != 0 ) && (tasks != nil) {
 		if b {
 			id1, err := strconv.Atoi(tasks[len(tasks)-1].Id)
 			if err != nil {

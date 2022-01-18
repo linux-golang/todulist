@@ -59,6 +59,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RunManager">
     <configuration name="go build todoList/main" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -126,9 +127,13 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state width="2517" height="492" key="GridCell.Tab.1.right/0.0.2560.1400@0.0.2560.1400" timestamp="1642256533078" />
-    <state x="1703" y="481" width="672" height="678" key="search.everywhere.popup" timestamp="1642302832624">
+    <state x="684" y="319" key="SettingsEditor" timestamp="1642434419372">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1703" y="481" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1642302832624" />
+    <state x="684" y="319" key="SettingsEditor/0.0.2560.1400@0.0.2560.1400" timestamp="1642434419372" />
+    <state x="1703" y="481" width="672" height="678" key="search.everywhere.popup" timestamp="1642497136633">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1703" y="481" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1642497136633" />
   </component>
 </project>

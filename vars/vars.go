@@ -28,23 +28,23 @@ const (
 var (
 	Sku bool
 	Pathdir string = "C:/todolist2/"
-	Todolistfile string = Pathdir + "todo.txt"
+	Todolistfile string = Pathdir + "todo.json"
 	Pwdfile string = Pathdir + "pwd.pwd"
-	Tasks = make([]*Task, 0)
+	Tasks []*Task
 )
 
 
 
 
-func Addtask(idInt func() int, name, detailed, finish_time, founder, time string) []*Task {
-	add := createTask(idInt, name, detailed, finish_time, founder, time)
-	Tasks = append(Tasks, add)
+//func Addtask(idInt func() int, name, detailed, finish_time, founder, time string) []*Task {
+//	add := CreateTask(idInt, name, detailed, finish_time, founder, time)
+//	Tasks = append(Tasks, add)
+//
+//	return Tasks
+//}
 
-	return Tasks
-}
 
-
-func createTask(idInt func() int, name, detailed, finish_time, founder, create_time string)  *Task {
+func CreateTask(idInt func() int, name, detailed, finish_time, founder, create_time string)  *Task {
 	idi := idInt()
 	ids := strconv.Itoa(idi)
 
@@ -94,7 +94,7 @@ func CheckTask(id string) (idn int, err error) {
 
 
 
-func Modify(id string) {
+func Modify(id string)   {
 	var is, scan string
 	i, err := CheckTask(id)
 	if err != nil {
@@ -102,7 +102,6 @@ func Modify(id string) {
 		return
 	}
 
-	fmt.Println("===================")
 	fmt.Printf("%v\n", Tasks[i])
 
 	for {

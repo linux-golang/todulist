@@ -2,6 +2,7 @@ package fileModel
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/howeyc/gopass"
 	"io"
@@ -17,7 +18,9 @@ func ReadFileTodolist() (tasks []*vars.Task, b bool) {
 	ok := Exists(vars.Todolistfile)
 	if  ok {
 		// 读取文件
-		tasks,err := Readfile(vars.Todolistfile)
+		tasks,err := Readfile()
+		//fmt.Println("----",len(tasks))
+		//fmt.Println(tasks)
 		if err !=nil {
 			return nil ,false
 		}
@@ -41,39 +44,52 @@ func Exists(path string) bool {
 	return  true
 }
 
-// 读取tolist文件
-func Readfile(path string) (tasks []*vars.Task,err error) {
-	file, err := os.OpenFile(vars.Todolistfile, os.O_RDONLY, 0777)
+// 读取tolist文件 // 使用json.NewDecoder 方式
+func Readfile_1() ([]*vars.Task,error) {
+	//file, err := os.OpenFile(vars.Todolistfile, os.O_RDONLY, 0777)
+	file,err := os.Open(vars.Todolistfile)
+
 	// 关闭文件
 	defer file.Close()
 	if err != nil {
 		return nil,err
 	}
-	// 创建bufio
-	read := bufio.NewScanner(file)
-	for read.Scan(){
-		stringline := read.Text()
-
-		stringslice:= strings.Split(stringline,",")
-		if len(stringslice) != 7 {
-			return nil ,err
-		}
-
-
-		v1 := &vars.Task{
-			Id:          stringslice[0],
-			Name:        stringslice[1],
-			Detailed:    stringslice[2],
-			Create_time: stringslice[3],
-			Finish_time: stringslice[4],
-			Status:      stringslice[5],
-			Founder:     stringslice[6],
-		}
-
-		// append 增加切片
-		tasks = append(tasks,v1)
+	vars.Tasks = make([]*vars.Task,0)
+	//var tt *vars.Task
+	scn := bufio.NewScanner(file)
+	for scn.Scan() {
+		var tt *vars.Task
+		d := json.NewDecoder(strings.NewReader(scn.Text()))
+		d.Decode(&tt)
+		vars.Tasks = append(vars.Tasks,tt)
 	}
-	return tasks,err
+
+	//vars.Tasks = append(vars.Tasks,tt...)
+	return vars.Tasks,err
+}
+
+
+// 使用json Umarshal
+func Readfile() ([]*vars.Task,error) {
+	//file, err := os.OpenFile(vars.Todolistfile, os.O_RDONLY, 0777)
+	file,err := os.Open(vars.Todolistfile)
+
+	// 关闭文件
+	defer file.Close()
+	if err != nil {
+		return nil,err
+	}
+	vars.Tasks = make([]*vars.Task,0)
+	//var tt *vars.Task
+	scn := bufio.NewScanner(file)
+	for scn.Scan() {
+		var tt *vars.Task
+		 json.Unmarshal(scn.Bytes(),&tt)
+		vars.Tasks = append(vars.Tasks,tt)
+	}
+
+	//vars.Tasks = append(vars.Tasks,tt...)
+	return vars.Tasks,err
 }
 
 
@@ -138,24 +154,61 @@ func ChechFileIsExit(path string) (error) {
 }
 
 
+// 使用json.Newnecoder 方式
+func Writetodolis(todo *vars.Task) bool {
 
-func Writetodolis(todo []*vars.Task) bool {
 
-	f, err := os.OpenFile(vars.Todolistfile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0777)
+	f, err := os.OpenFile(vars.Todolistfile, os.O_CREATE|os.O_RDWR|os.O_APPEND , 0777)
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
 	defer f.Close()
 
-	buff := bufio.NewWriter(f)
 
-	for _, v := range todo {
-		s := fmt.Sprintf("%s,%s,%s,%s,%s,%s,%s\r\n", v.Id, v.Name, v.Detailed, v.Create_time, v.Finish_time, v.Status, v.Founder)
-		buff.Write([]byte(s))
+	//json.NewEncoder(f).Encode(vars.Tasks)
+	json.NewEncoder(f).Encode(todo)
+
+	return true
+}
+
+
+
+// 使用json.Newnecoder 方式
+func ModifyWritTodoList(task []*vars.Task) {
+	f, err := os.OpenFile(vars.Todolistfile, os.O_CREATE|os.O_RDWR|os.O_TRUNC , 0777)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
+	//b := make([]byte,1024)
+	//buf := bufio.NewWriter(f)
+	defer f.Close()
+		for _,v := range task {
+			json.NewEncoder(f).Encode(v)
 
-	buff.Flush()
+		}
+}
+
+
+// 使用json.Marshal 方式
+
+
+func WritMarshal(todo *vars.Task) bool {
+	f, err := os.OpenFile(vars.Todolistfile, os.O_CREATE|os.O_RDWR|os.O_APPEND , 0777)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	defer f.Close()
+
+	b,err := json.Marshal(todo)
+	if err != nil {
+		return false
+	}
+	buf := bufio.NewWriter(f)
+	buf.Write(b)
+	buf.Flush()
 
 	return true
 }

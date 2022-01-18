@@ -29,8 +29,9 @@ func GraphicInterface(Idint func() int) {
 			fmt.Scanln(&finish_time)
 			fmt.Print("创建人:")
 			fmt.Scanln(&founder)
-			task := vars.Addtask(Idint, name, detailed, finish_time, founder, now.Format("2006-01-02 15:04:05"))
-			fileModel.Writetodolis(task)
+			task := vars.CreateTask(Idint, name, detailed, finish_time, founder, now.Format("2006-01-02 15:04:05"))
+			//fileModel.Writetodolis(task)
+			fileModel.WritMarshal(task)
 		case "delete":
 			var id string
 			fmt.Printf("请输入删除ID:")
@@ -38,7 +39,7 @@ func GraphicInterface(Idint func() int) {
 			ok, err := vars.DeleteTask(id)
 			if ok {
 				fmt.Println("删除成功")
-				fileModel.Writetodolis(vars.Tasks)
+				//fileModel.Writetodolis(vars.Tasks)
 			} else {
 				fmt.Println(err)
 			}
@@ -48,7 +49,10 @@ func GraphicInterface(Idint func() int) {
 			fmt.Scanln(&id)
 
 			vars.Modify(id)
-			fileModel.Writetodolis(vars.Tasks)
+
+			// 在切片修改后，在更新到文件中
+
+			fileModel.ModifyWritTodoList(vars.Tasks)
 
 		case "list":
 			// 首先要变成二维数组
@@ -56,6 +60,7 @@ func GraphicInterface(Idint func() int) {
 			sliceone := [][]string{}
 
 			task,b := fileModel.ReadFileTodolist()
+
 
 
 			if b {
